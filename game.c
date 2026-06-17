@@ -10,25 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long.h"
+#include "cub3d.h"
 
-static void	ft_img_init(t_data *data)
+static void	frame_init(t_data *data)
 {
-	int	width;
-	int	height;
-
-	data->back = mlx_xpm_file_to_image(data->mlx,
-			"rs/back.xpm", &width, &height);
-	data->obj = mlx_xpm_file_to_image(data->mlx,
-			"rs/obj.xpm", &width, &height);
-	data->wall = mlx_xpm_file_to_image(data->mlx,
-			"rs/wall.xpm", &width, &height);
-	data->player = mlx_xpm_file_to_image(data->mlx,
-			"rs/player.xpm", &width, &height);
-	data->exit = mlx_xpm_file_to_image(data->mlx,
-			"rs/exit.xpm", &width, &height);
-	if (!data->back || !data->obj || !data->wall
-		|| !data->player || !data->exit)
+	/*
+	** The frame image is our drawing buffer. We paint pixels into memory first
+	** and then send the whole image to the window in one MiniLibX call.
+	*/
+	data->frame.img = mlx_new_image(data->mlx, WIN_WIDTH, WIN_HEIGHT);
+	if (!data->frame.img)
+		handle_error(IMG_ERROR, data);
+	data->frame.addr = mlx_get_data_addr(data->frame.img,
+			&data->frame.bits_per_pixel, &data->frame.line_length,
+			&data->frame.endian);
+	if (!data->frame.addr)
 		handle_error(IMG_ERROR, data);
 }
 
@@ -36,13 +32,12 @@ void	game_init(t_data *data)
 {
 	data->mlx = mlx_init();
 	if (NULL == data->mlx)
-		destroy_all(data);
-	data->window = mlx_new_window(data->mlx, data->size_x * TILE_SIZE,
-			data->size_y * TILE_SIZE + TILE_SIZE, "so_long");
+		handle_error(MLX_ERROR, data);
+	data->window = mlx_new_window(data->mlx, WIN_WIDTH, WIN_HEIGHT, "cub3D");
 	if (NULL == data->window)
-		destroy_all(data);
-	ft_img_init(data);
-	create_map(data);
+		handle_error(MLX_ERROR, data);
+	frame_init(data);
+	render_frame(data);
 	mlx_hook(data->window, KEY_PRESS, 1L >> 0, key_hook, data);
 	mlx_hook(data->window, MOUSE_PRESS, 0, destroy_all, data);
 	data->game_over = false;

@@ -1,4 +1,4 @@
-NAME = so_long
+NAME = cub3D
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
@@ -21,7 +21,9 @@ CFILES = \
 	checker_utils.c \
 	ft_init.c \
 	ft_move.c \
+	flood_fill.c \
 	game.c \
+	raycast.c \
 	libft.c \
 	utils.c \
 	$(GNL_PATH)/get_next_line.c \
